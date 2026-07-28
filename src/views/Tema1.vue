@@ -15,13 +15,42 @@ export default {
   data: () => ({
     // variables de vue
   }),
+  watch: {
+    // Escucha el cambio de sección desde el menú lateral
+    '$route.hash'() {
+      this.scrollToElement()
+    },
+  },
   mounted() {
-    this.$nextTick(() => {
-      this.$aosRefresh()
-    })
+    this.scrollToElement()
   },
   updated() {
     this.$aosRefresh()
+  },
+  methods: {
+    scrollToElement() {
+      this.$nextTick(() => {
+        this.$aosRefresh()
+        // 500ms da tiempo suficiente a que la animación de cierre del menú lateral
+        // termine y libere el ancho/alto real del contenedor
+        setTimeout(() => {
+          const hash = this.$route.hash || window.location.hash
+          if (!hash) return
+          const element = document.querySelector(hash)
+          if (element) {
+            // Altura de la barra superior fija del SENA
+            const headerOffset = 100
+            const elementPosition = element.getBoundingClientRect().top
+            const offsetPosition =
+              elementPosition + window.pageYOffset - headerOffset
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth',
+            })
+          }
+        }, 500)
+      })
+    },
   },
 }
 </script>
